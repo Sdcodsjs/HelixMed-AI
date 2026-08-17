@@ -1,0 +1,115 @@
+{
+  "Trial Matching \u2014 UCI Heart XGBoost": {
+    "accuracy": 90.16,
+    "precision": 90.29,
+    "recall": 90.16,
+    "f1": 90.13,
+    "auc": 0.9264,
+    "confusion_matrix": [
+      [
+        31,
+        2
+      ],
+      [
+        4,
+        24
+      ]
+    ]
+  },
+  "Early Warning CatBoost \u2014 Heart Failure": {
+    "accuracy": 86.59,
+    "precision": 86.61,
+    "recall": 86.59,
+    "f1": 86.58,
+    "auc": 0.9572,
+    "confusion_matrix": [
+      [
+        36,
+        5
+      ],
+      [
+        6,
+        35
+      ]
+    ]
+  },
+  "Diabetes Risk \u2014 UCI Pima Ensemble": {
+    "accuracy": 82.0,
+    "precision": 82.32,
+    "recall": 82.0,
+    "f1": 81.95,
+    "auc": 0.8942,
+    "confusion_matrix": [
+      [
+        77,
+        23
+      ],
+      [
+        13,
+        87
+      ]
+    ]
+  },
+  "Mortality Risk \u2014 Breast Cancer LightGBM": {
+    "accuracy": 97.37,
+    "precision": 97.47,
+    "recall": 97.37,
+    "f1": 97.35,
+    "auc": 0.996,
+    "confusion_matrix": [
+      [
+        72,
+        0
+      ],
+      [
+        3,
+        39
+      ]
+    ]
+  },
+  "Digital Twin \u2014 Diabetes Progression": {
+    "mse": 0.02486,
+    "r2": 0.5166,
+    "rmse": 0.15766
+  },
+  "Federated Learning \u2014 FedAvg": {
+    "global_auc": 0.9804,
+    "rounds": 10,
+    "node_aucs": [
+      0.9905,
+      0.9507,
+      1.0
+    ]
+  },
+  "XAI SHAP \u2014 Diabetes": {
+    "top_feature": "Glucose",
+    "top_pct": 33.02,
+    "all_features": {
+      "Glucose": 33.02,
+      "BMI": 18.95,
+      "Age": 13.09,
+      "DPF": 11.35,
+      "Pregnancies": 7.7,
+      "Insulin": 6.28,
+      "BP": 6.01,
+      "SkinThickness": 3.6
+    }
+  },
+  "Protocol Risk \u2014 Statlog Heart Ensemble": {
+    "accuracy": 81.48,
+    "precision": 81.81,
+    "recall": 81.48,
+    "f1": 81.53,
+    "auc": 0.8778,
+    "confusion_matrix": [
+      [
+        24,
+        6
+      ],
+      [
+        4,
+        20
+      ]
+    ]
+  }
+}

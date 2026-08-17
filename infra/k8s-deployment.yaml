@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: clinicalnexus-web
+  labels:
+    app: clinicalnexus-web
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: clinicalnexus-web
+  template:
+    metadata:
+      labels:
+        app: clinicalnexus-web
+    spec:
+      containers:
+      - name: web
+        image: ghcr.io/clinicalnexus/web:latest
+        ports:
+        - containerPort: 4000
+        resources:
+          limits:
+            cpu: "1000m"
+            memory: "1024Mi"
+          requests:
+            cpu: "250m"
+            memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: clinicalnexus-service
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 4000
+  selector:
+    app: clinicalnexus-web

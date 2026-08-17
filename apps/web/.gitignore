@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build & Vite Output
+build/
+dist/
+.react-router/
+.vitest/
+
+# Environment Variables & Secrets
+.env
+.env.*
+.env.local
+.env.*.local
+
+# Internal Docs & Agent Files
+agent.md
+AGENT.md
+AGENTS.md
+claude.md
+CLAUDE.md
+*.log
+
+# Logs & OS
+*.log
+.DS_Store
