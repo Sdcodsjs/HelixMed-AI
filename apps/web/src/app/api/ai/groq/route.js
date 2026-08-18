@@ -170,5 +170,5 @@ function buildFallback(query, mode) {
     return "## 🤖 MedCore RAG Copilot\n\nI'm running in offline mode. Set `GROQ_API_KEY` in your `.env` for live Llama 3.1 responses.\n\nYou can ask me about:\n- High-risk patients\n- Clinical trials\n- AI model performance\n- Drug interactions";
   }
 
-  return `## MedCore AI Response\n\nI understand you're asking about: **"${query}"**\n\nFor live AI responses powered by Llama 3.1 (free via Groq), add your `GROQ_API_KEY` to the environment.\n\nSign up free at: https://console.groq.com`;
+  return `## MedCore AI Response\n\nI understand you're asking about: **"${query}"**\n\nFor live AI responses powered by Llama 3.1 (free via Groq), add your GROQ_API_KEY to the environment.\n\nSign up free at: https://console.groq.com`;
 }

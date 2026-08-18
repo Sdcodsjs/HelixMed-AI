@@ -1,4 +1,5 @@
 "use client";
+// MedCore Hub — 18 AI & Hospital Management Modules (Groq Llama 3.1 & Rule Engine)
 import React, { useState, useRef, useEffect } from "react";
 import AppLayout from "@/components/AppLayout";
 import {
