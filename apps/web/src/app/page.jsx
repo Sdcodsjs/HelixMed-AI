@@ -25,7 +25,13 @@ import {
   Sparkles,
   Command,
   ArrowRight,
-  Utensils
+  Utensils,
+  Droplets,
+  Bug,
+  Truck,
+  Star,
+  Scan,
+  Wrench
 } from "lucide-react";
 import { usePatient } from "../context/PatientContext";
 
@@ -226,6 +232,76 @@ export default function Dashboard() {
       icon: Globe,
       description: "Instant translation for medical instructions across 6+ international languages.",
       href: "/multilingual",
+    },
+    {
+      title: "Surgery & OT Management",
+      icon: Stethoscope,
+      description: "Real-time OT dashboard, surgery queue management, WHO safety checklist, and post-op recovery monitoring.",
+      href: "/surgery-scheduler",
+      badge: "OT",
+    },
+    {
+      title: "Revenue Cycle & Billing AI",
+      icon: DollarSign,
+      description: "AI auto-coding (ICD-10/CPT), claim denial prediction, revenue analytics, and patient payment plans.",
+      href: "/billing-intelligence",
+      badge: "Billing",
+    },
+    {
+      title: "Blood Bank & Transfusion",
+      icon: Droplets,
+      description: "Blood inventory matrix, cross-match lab, transfusion safety monitoring, donor registry, and AI demand forecasting.",
+      href: "/blood-bank",
+      badge: "Blood",
+    },
+    {
+      title: "Hospital Nutrition & Diet",
+      icon: Utensils,
+      description: "Disease-specific diet templates, allergy cross-checks, kitchen order dashboard, and caloric tracking.",
+      href: "/nutrition-planner",
+      badge: "Diet",
+    },
+    {
+      title: "Infection Control & Surveillance",
+      icon: Bug,
+      description: "HAI rates, antibiogram heatmap, outbreak detection radar, hand hygiene compliance, and isolation management.",
+      href: "/infection-control",
+      badge: "HAI",
+    },
+    {
+      title: "Staff Roster & Workforce",
+      icon: Users,
+      description: "Shift scheduling calendar, fatigue risk monitoring, leave management, and overtime analytics by department.",
+      href: "/staff-roster",
+      badge: "HR",
+    },
+    {
+      title: "Ambulance & Transport Tracker",
+      icon: Truck,
+      description: "Fleet GPS tracking, emergency dispatch console, ETA optimization, and inter-hospital transfer coordination.",
+      href: "/ambulance-tracker",
+      badge: "EMS",
+    },
+    {
+      title: "Hospital Asset Management",
+      icon: Wrench,
+      description: "Medical equipment registry, preventive maintenance scheduling, calibration tracking, and utilization analytics.",
+      href: "/asset-manager",
+      badge: "Assets",
+    },
+    {
+      title: "Patient Feedback Analytics",
+      icon: Star,
+      description: "NPS scoring, AI sentiment analysis of free-text feedback, complaint escalation tracker, and theme word cloud.",
+      href: "/patient-feedback",
+      badge: "NPS",
+    },
+    {
+      title: "Radiology AI Workstation",
+      icon: Scan,
+      description: "AI-assisted finding detection, structured reporting, critical value alerts, and report turnaround time analytics.",
+      href: "/radiology-ai",
+      badge: "RAD",
     },
   ];
 
