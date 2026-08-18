@@ -79,11 +79,18 @@ export async function POST(request) {
 
     let twinMlOutput = null;
     try {
-      const mlResponse = await fetch("http://localhost:5000/predict/digital_twin", {
+      const mlUrl = process.env.PYTHON_INFERENCE_URL
+        ? `${process.env.PYTHON_INFERENCE_URL}/predict/digital_twin`
+        : "http://localhost:5000/predict/digital_twin";
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const mlResponse = await fetch(mlUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ features: twinFeatures }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (mlResponse.ok) {
         twinMlOutput = await mlResponse.json();
       }

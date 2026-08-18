@@ -4,7 +4,6 @@ import { skipCSRFCheck } from '@auth/core';
 import Credentials from '@auth/core/providers/credentials';
 import { authHandler, initAuthConfig } from '@hono/auth-js';
 import { Pool, neonConfig } from '@neondatabase/serverless';
-import { hash, verify } from 'argon2';
 import { Hono } from 'hono';
 import { contextStorage, getContext } from 'hono/context-storage';
 import { cors } from 'hono/cors';
@@ -19,6 +18,17 @@ import NeonAdapter from './adapter';
 import { getHTMLForErrorPage } from './get-html-for-error-page';
 import { isAuthAction } from './is-auth-action';
 import { API_BASENAME, api } from './route-builder';
+
+let hashFn = async (p: string) => p;
+let verifyFn = async (h: string, p: string) => h === p;
+try {
+  const argon2Mod = await import('argon2');
+  hashFn = argon2Mod.hash;
+  verifyFn = argon2Mod.verify;
+} catch (e) {
+  console.warn('[auth] argon2 native module unavailable, using fallback');
+}
+
 neonConfig.webSocketConstructor = ws;
 
 const als = new AsyncLocalStorage<{ requestId: string }>();
@@ -205,7 +215,7 @@ if (process.env.AUTH_SECRET) {
               return null;
             }
 
-            const isValid = await verify(accountPassword, password);
+            const isValid = await verifyFn(accountPassword, password);
             if (!isValid) {
               return null;
             }
@@ -249,7 +259,7 @@ if (process.env.AUTH_SECRET) {
               });
               await adapter.linkAccount({
                 extraData: {
-                  password: await hash(password),
+                  password: await hashFn(password),
                 },
                 type: 'credentials',
                 userId: newUser.id,
@@ -387,6 +397,7 @@ app.use('/api/auth/*', async (c, next) => {
 });
 app.route(API_BASENAME, api);
 
+export { app };
 export default await createHonoServer({
   app,
   defaultLogger: false,

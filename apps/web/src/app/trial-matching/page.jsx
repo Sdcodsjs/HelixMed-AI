@@ -31,6 +31,14 @@ export default function TrialMatchingPage() {
     (p) => p.id.toString() === selectedPatientId.toString()
   );
 
+  React.useEffect(() => {
+    if (patients && patients.length > 0 && !selectedPatientId) {
+      const firstId = patients[0].id.toString();
+      setSelectedPatientId(firstId);
+      matchMutation.mutate(firstId);
+    }
+  }, [patients]);
+
   // Match Mutation
   const matchMutation = useMutation({
     mutationFn: async (patientId) => {

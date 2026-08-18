@@ -67,7 +67,8 @@ export default function LiveInferencePlayground({ selectedModelId = 3 }) {
     const startTime = performance.now();
     try {
       const payload = { features: params };
-      const res = await fetch(`http://127.0.0.1:5000/predict/${config.endpoint}`, {
+      const baseUrl = (typeof import.meta !== 'undefined' && import.meta.env?.VITE_PYTHON_INFERENCE_URL) || "http://127.0.0.1:5000";
+      const res = await fetch(`${baseUrl}/predict/${config.endpoint}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

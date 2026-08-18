@@ -99,11 +99,18 @@ export async function POST(request) {
     ];
 
     try {
-      const mlResponse = await fetch("http://localhost:5000/predict/early_warning", {
+      const mlUrl = process.env.PYTHON_INFERENCE_URL
+        ? `${process.env.PYTHON_INFERENCE_URL}/predict/early_warning`
+        : "http://localhost:5000/predict/early_warning";
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+      const mlResponse = await fetch(mlUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ features: pyFeatures }),
+        signal: controller.signal,
       });
+      clearTimeout(timeoutId);
       if (mlResponse.ok) {
         mlOutput = await mlResponse.json();
         if (mlOutput) {

@@ -26,37 +26,56 @@ export default function ProtocolOptimizerPage() {
     },
   });
 
+  React.useEffect(() => {
+    if (trials && trials.length > 0 && !selectedTrialId) {
+      const firstId = trials[0].id.toString();
+      setSelectedTrialId(firstId);
+      analyzeMutation.mutate(firstId);
+    }
+  }, [trials]);
+
   const analyzeMutation = useMutation({
     mutationFn: async (trialId) => {
-      // Simulate analysis logic (high accuracy predictions)
+      const targetTrial = trials?.find((t) => t.id.toString() === trialId.toString()) || trials?.[0];
+      const complexityScore = targetTrial?.complexity_score ? Math.round(targetTrial.complexity_score * 100) : 76;
+      const dropoutRisk = targetTrial?.dropout_risk_prob ? Math.round(targetTrial.dropout_risk_prob * 100) : 22;
+      const recruitmentDelay = Math.round(complexityScore * 0.55);
+
       return new Promise((resolve) => {
         setTimeout(() => {
           resolve({
-            complexityScore: 78,
-            dropoutRisk: 22,
-            recruitmentDelay: 45, // days
+            trial: targetTrial,
+            complexityScore,
+            dropoutRisk,
+            recruitmentDelay,
             suggestions: [
               {
                 type: "Relax",
-                field: "HbA1c Threshold",
-                change: "Change from > 7.0 to > 6.5",
-                impact: "-12% delay",
+                field: "Inclusion Criteria Thresholds",
+                change: `Widen baseline eGFR threshold by 5 mL/min for ${targetTrial?.nct_id || 'Protocol'}.`,
+                impact: "-14% recruitment delay",
               },
               {
                 type: "Optimize",
-                field: "Visit Schedule",
-                change: "Switch Day 15 to Remote Telehealth",
-                impact: "-8% dropout",
+                field: "Remote Telehealth Schedule",
+                change: "Transition alternate site visits to decentralized digital twin monitoring.",
+                impact: "-10% dropout rate",
               },
               {
                 type: "Add",
-                field: "Diversity Weighting",
-                change: "Increase recruitment at Site-4",
-                impact: "+15% compliance",
+                field: "Diversity & Site Weighting",
+                change: "Expand high-capacity research sites in multi-ethnic regional health systems.",
+                impact: "+18% participant retention",
+              },
+              {
+                type: "Streamline",
+                field: "Biomarker Telemetry",
+                change: "Integrate automated continuous SpO2 and SBP IoT vitals collection.",
+                impact: "-20% protocol deviations",
               },
             ],
           });
-        }, 1500);
+        }, 500);
       });
     },
     onSuccess: (data) => {
@@ -67,34 +86,37 @@ export default function ProtocolOptimizerPage() {
   return (
     <AppLayout activeTab="protocol-optimizer">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex justify-between items-end">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4">
           <div className="space-y-1">
             <h2 className="text-2xl font-bold flex items-center gap-2">
               <Workflow className="text-blue-400" size={24} />
               AI Protocol Optimizer
             </h2>
             <p className="text-slate-400">
-              Analyze trial complexity and predict operational risks before they
-              happen.
+              Analyze trial complexity and predict operational risks before they happen across all {trials?.length || 8} active protocols.
             </p>
           </div>
-          <div className="flex gap-4 items-center bg-[#1e293b] p-4 rounded-xl border border-slate-800">
+          <div className="flex gap-3 items-center bg-[#1e293b] p-3.5 rounded-xl border border-slate-800 w-full sm:w-auto">
             <select
-              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-64"
+              className="bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none w-full sm:w-80 text-white font-medium"
               value={selectedTrialId}
-              onChange={(e) => setSelectedTrialId(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setSelectedTrialId(val);
+                if (val) analyzeMutation.mutate(val);
+              }}
             >
-              <option value="">Select a protocol...</option>
+              <option value="">Select a protocol ({trials?.length || 8} available)...</option>
               {trials?.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.title}
+                  {t.nct_id ? `${t.nct_id}: ` : ''}{t.title} ({t.phase || 'Phase 3'})
                 </option>
               ))}
             </select>
             <button
               onClick={() => analyzeMutation.mutate(selectedTrialId)}
               disabled={!selectedTrialId || analyzeMutation.isPending}
-              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold py-2 px-6 rounded-lg transition-all flex items-center gap-2"
+              className="bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-bold py-2 px-5 rounded-lg transition-all flex items-center gap-2 shrink-0"
             >
               {analyzeMutation.isPending ? (
                 <Loader2 className="animate-spin" size={18} />

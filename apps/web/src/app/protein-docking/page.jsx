@@ -194,15 +194,34 @@ export default function ProteinDockingPage() {
 
             {/* Affinity Metrics */}
             <div className="grid grid-cols-2 gap-3 pt-2">
-              <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                <span className="text-xs text-slate-400 block">Binding Affinity ($K_d$)</span>
-                <span className="text-lg font-bold text-purple-400 mt-1 block">{current.bindingAffinityKd}</span>
-                <span className="text-[10px] text-emerald-400">Sub-nanomolar Potency</span>
+              <div className={`bg-slate-950 border rounded-lg p-3 transition-all duration-300 ${isDocking ? "border-purple-500/60 shadow-lg shadow-purple-500/20 animate-pulse" : "border-slate-800"}`}>
+                <span className="text-xs text-slate-400 block font-medium">
+                  Binding Affinity (K<sub className="text-[9px]">d</sub>)
+                </span>
+                <span className="text-lg font-bold text-purple-400 mt-1 block font-mono tracking-tight">
+                  {current.bindingAffinityKd}
+                </span>
+                <span className="text-[10px] font-semibold">
+                  {parseFloat(current.bindingAffinityKd) < 1
+                    ? <span className="text-emerald-400">⚡ Sub-nanomolar Potency</span>
+                    : <span className="text-amber-400">Nanomolar Range</span>
+                  }
+                </span>
               </div>
-              <div className="bg-slate-950 border border-slate-800 rounded-lg p-3">
-                <span className="text-xs text-slate-400 block">Gibbs Free Energy ($\Delta G$)</span>
-                <span className="text-lg font-bold text-indigo-400 mt-1 block">{current.bindingEnergy}</span>
-                <span className="text-[10px] text-slate-500">AutoDock Score</span>
+              <div className={`bg-slate-950 border rounded-lg p-3 transition-all duration-300 ${isDocking ? "border-indigo-500/60 shadow-lg shadow-indigo-500/20 animate-pulse" : "border-slate-800"}`}>
+                <span className="text-xs text-slate-400 block font-medium">
+                  Gibbs Free Energy (&Delta;G)
+                </span>
+                <span className="text-lg font-bold text-indigo-400 mt-1 block font-mono tracking-tight">
+                  {current.bindingEnergy}
+                </span>
+                <span className="text-[10px] text-slate-400 font-semibold">
+                  AutoDock Vina Score
+                  {parseFloat(current.bindingEnergy) < -11
+                    ? <span className="text-emerald-400 ml-1">● Favorable</span>
+                    : <span className="text-amber-400 ml-1">● Moderate</span>
+                  }
+                </span>
               </div>
             </div>
 

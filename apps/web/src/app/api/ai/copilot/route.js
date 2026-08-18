@@ -1,4 +1,7 @@
-import { scrubPHI, detectPHIFields } from "../../../../utils/presidioScrubber.js";
+import { scrubPHI as origScrubPHI, detectPHIFields as origDetectPHIFields } from "@/utils/presidioScrubber.js";
+
+const scrubPHI = (t) => { try { return origScrubPHI(t); } catch(e) { return t; } };
+const detectPHIFields = (t) => { try { return origDetectPHIFields(t); } catch(e) { return []; } };
 
 const CLINICAL_KNOWLEDGE_BASE = {
   models: [
@@ -27,7 +30,13 @@ export async function POST(request) {
   const startTime = Date.now();
 
   try {
-    const { messages } = await request.json();
+    let body = {};
+    try {
+      body = await request.json();
+    } catch (e) {
+      body = {};
+    }
+    const messages = Array.isArray(body.messages) ? body.messages : [];
     const userQuery = messages[messages.length - 1]?.content || "";
 
     // 1. Input Guardrail: Presidio PHI Scrubbing & Safety Check

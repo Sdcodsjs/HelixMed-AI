@@ -175,6 +175,33 @@ const DB = {
       exclusion_criteria: [{ criterion: "Type 1 Diabetes" }, { criterion: "Renal transplant recipient" }],
       created_at: new Date().toISOString(),
     },
+    {
+      id: 6, nct_id: "NCT001", phase: "Phase 2",
+      title: "NCT001: CAR-T Cell Immunotherapy Protocol for Lymphoma",
+      conditions: ["Refractory B-Cell Lymphoma", "Oncology"],
+      recruitment_status: "recruiting", complexity_score: 0.85, dropout_risk_prob: 0.24,
+      inclusion_criteria: [{ criterion: "Confirmed CD19+ B-Cell Lymphoma" }, { criterion: "Age 18-75" }, { criterion: "ECOG Status 0-1" }],
+      exclusion_criteria: [{ criterion: "Active CNS Lymphoma" }, { criterion: "Prior Allogeneic HSCT" }],
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 7, nct_id: "NCT002", phase: "Phase 3",
+      title: "NCT002: SGLT2 Renal Protection & Glycemic Outcome Study",
+      conditions: ["Type 2 Diabetes", "Chronic Kidney Disease"],
+      recruitment_status: "recruiting", complexity_score: 0.62, dropout_risk_prob: 0.15,
+      inclusion_criteria: [{ criterion: "HbA1c 6.5-10.5%" }, { criterion: "eGFR 30-75 mL/min/1.73m²" }],
+      exclusion_criteria: [{ criterion: "Type 1 Diabetes" }, { criterion: "Dialysis" }],
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 8, nct_id: "NCT003", phase: "Phase 1/2",
+      title: "NCT003: mRNA Targeted Immunotherapy Protocol",
+      conditions: ["Pancreatic Adenocarcinoma", "Solid Tumor Oncology"],
+      recruitment_status: "recruiting", complexity_score: 0.89, dropout_risk_prob: 0.31,
+      inclusion_criteria: [{ criterion: "Histologically confirmed adenocarcinoma" }, { criterion: "Adequate hepatic and renal function" }],
+      exclusion_criteria: [{ criterion: "Uncontrolled brain metastases" }, { criterion: "Autoimmune disease" }],
+      created_at: new Date().toISOString(),
+    },
   ],
 
   vitals: [
