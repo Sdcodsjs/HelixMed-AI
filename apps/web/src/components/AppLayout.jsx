@@ -36,7 +36,8 @@ import {
   Scan,
   FileCheck,
   ShieldAlert,
-  Layers
+  Layers,
+  Lock
 } from "lucide-react";
 import { usePatient } from "../context/PatientContext";
 import CommandPalette from "./CommandPalette";
@@ -84,6 +85,7 @@ export default function AppLayout({ children, activeTab }) {
       items: [
         { label: "Dashboard", icon: LayoutDashboard, href: "/" },
         { label: "Doctor Workspace", icon: Stethoscope, href: "/doctor-workspace", badge: "Live" },
+        { label: "Portal Login / Auth", icon: Lock, href: "/login", badge: "2FA" },
       ],
     },
     {
@@ -342,6 +344,16 @@ export default function AppLayout({ children, activeTab }) {
               <FileText size={16} className="text-blue-400" />
               <span className="hidden lg:inline">Report</span>
             </button>
+
+            {/* Login / Portal Button */}
+            <a
+              href="/login"
+              className="p-2 text-blue-400 hover:text-white bg-blue-600/10 hover:bg-blue-600 rounded-xl border border-blue-500/30 transition-all flex items-center gap-1.5 text-xs font-semibold"
+              title="Clinician / Doctor Portal Login"
+            >
+              <Lock size={15} />
+              <span className="hidden md:inline">Login</span>
+            </a>
 
             {/* High Contrast Theme Toggle */}
             <button
