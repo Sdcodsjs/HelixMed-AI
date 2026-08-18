@@ -7,7 +7,8 @@ import {
   Calendar, Activity, TrendingUp, Search, Brain, AlertTriangle,
   CheckCircle2, XCircle, Send, Zap, ChevronRight, Clock, Heart,
   Thermometer, Wind, Droplets, Eye, FileText, Download, RefreshCw,
-  Phone, User, Stethoscope, Info, AlertCircle, Package, Filter, Star
+  Phone, User, Stethoscope, Info, AlertCircle, Package, Filter, Star,
+  ShieldCheck, FileCheck
 } from "lucide-react";
 import {
   BarChart, Bar, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,

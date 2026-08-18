@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Activity,
   Users,
@@ -76,8 +76,28 @@ export default function AppLayout({ children, activeTab }) {
   const [isReportOpen, setReportOpen] = useState(false);
   const [isPatientDropdownOpen, setPatientDropdownOpen] = useState(false);
   const [isHighContrast, setIsHighContrast] = useState(false);
+  const [isAuthChecked, setIsAuthChecked] = useState(false);
+
+  // Auth Gate — redirect to /login if no session token
+  useEffect(() => {
+    const token = typeof window !== "undefined" && localStorage.getItem("cn_auth_token");
+    if (!token) {
+      window.location.href = "/login";
+    } else {
+      setIsAuthChecked(true);
+    }
+  }, []);
 
   const { activePatient, patients, setActivePatient } = usePatient();
+
+  // Don't render anything until auth is verified (prevents flash of dashboard)
+  if (!isAuthChecked) {
+    return (
+      <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500" />
+      </div>
+    );
+  }
 
   const navigationCategories = [
     {
