@@ -46,10 +46,12 @@ for (const method of ['log', 'info', 'warn', 'error', 'debug'] as const) {
   };
 }
 
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-const adapter = NeonAdapter(pool);
+const pool = process.env.DATABASE_URL
+  ? new Pool({
+      connectionString: process.env.DATABASE_URL,
+    })
+  : null;
+const adapter = pool ? NeonAdapter(pool) : null;
 
 const app = new Hono();
 
@@ -151,7 +153,7 @@ if (process.env.AUTH_SECRET) {
                 },
                 authorize: async (credentials) => {
                   const { email, name, provider } = credentials;
-                  if (!email || typeof email !== 'string') return null;
+                  if (!email || typeof email !== 'string' || !adapter) return null;
 
                   const existing = await adapter.getUserByEmail(email);
                   if (existing) return existing;
@@ -198,7 +200,7 @@ if (process.env.AUTH_SECRET) {
             if (!email || !password) {
               return null;
             }
-            if (typeof email !== 'string' || typeof password !== 'string') {
+            if (typeof email !== 'string' || typeof password !== 'string' || !adapter) {
               return null;
             }
 
@@ -244,7 +246,7 @@ if (process.env.AUTH_SECRET) {
             if (!email || !password) {
               return null;
             }
-            if (typeof email !== 'string' || typeof password !== 'string') {
+            if (typeof email !== 'string' || typeof password !== 'string' || !adapter) {
               return null;
             }
 
