@@ -131,6 +131,7 @@ export default function AppLayout({ children, activeTab }) {
     {
       title: "Biotech & Next-Gen Workflows",
       items: [
+        { label: "MedCore Intelligence Hub", icon: Brain, href: "/medcore-hub", badge: "12 AI Modules" },
         { label: "CRISPR Gene Editor", icon: Dna, href: "/crispr-editor", badge: "Cas9/12" },
         { label: "EEG Neuro-Telemetry", icon: Brain, href: "/eeg-telemetry", badge: "16-Channel" },
         { label: "3D Protein Docking", icon: Layers, href: "/protein-docking", badge: "AlphaFold" },

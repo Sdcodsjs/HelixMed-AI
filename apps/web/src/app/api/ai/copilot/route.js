@@ -3,6 +3,38 @@ import { scrubPHI as origScrubPHI, detectPHIFields as origDetectPHIFields } from
 const scrubPHI = (t) => { try { return origScrubPHI(t); } catch(e) { return t; } };
 const detectPHIFields = (t) => { try { return origDetectPHIFields(t); } catch(e) { return []; } };
 
+// ── Groq live LLM call (free tier, Llama 3.1-8b-instant) ──────────────────
+async function tryGroqRAG(userQuery) {
+  const key = process.env.GROQ_API_KEY;
+  if (!key) return null;
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 7000);
+    const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
+      body: JSON.stringify({
+        model: "llama-3.1-8b-instant",
+        temperature: 0.3,
+        max_tokens: 600,
+        messages: [
+          { role: "system", content: "You are an Advanced Clinical Research RAG Copilot. Answer questions about clinical trials, AI model metrics, high-risk patients, drug interactions, and PubMed literature. Use markdown for structure. Be concise and clinically accurate." },
+          { role: "user", content: userQuery },
+        ],
+      }),
+      signal: controller.signal,
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || null;
+  } catch {
+    return null;
+  }
+}
+
+
+
 const CLINICAL_KNOWLEDGE_BASE = {
   models: [
     { name: "Trial Matching", accuracy: "90.16%", auc: "0.9020", algo: "XGBoost + Optuna (UCI Heart)" },
@@ -68,6 +100,23 @@ export async function POST(request) {
 
     let doclingSources = [];
     let replyText = "";
+
+    // 5. Groq / Llama 3.1 live response (free tier) — runs before deterministic fallback
+    const groqResponse = await tryGroqRAG(userQuery);
+    if (groqResponse) {
+      replyText = groqResponse;
+      doclingSources = [{ title: "Groq / Llama 3.1-8b-instant (live)", type: "LLM" }];
+      const latencyMs = Date.now() - startTime;
+      return new Response(JSON.stringify({
+        id: "chatcmpl-" + Date.now(),
+        object: "chat.completion",
+        created: Math.floor(Date.now() / 1000),
+        provider: "groq",
+        model: "llama-3.1-8b-instant",
+        ragTelemetry: { latencyMs, inputGuardrail: { phiDetected, scrubbedQuery }, queryExpansion: expandedTerms, hybridSearch: { bm25Score, denseVectorScore }, crossEncoderRerankScore, logProbConfidence: ragLogProbConfidence, webSearchHandoffTriggered: false, doclingSources },
+        choices: [{ index: 0, message: { role: "assistant", content: replyText }, finish_reason: "stop" }],
+      }), { headers: { "Content-Type": "application/json" } });
+    }
 
     if (triggerWebSearchHandoff) {
       // Confidence < 90%: A2A Handoff to Live Web Search Agent (PubMed / arXiv)
