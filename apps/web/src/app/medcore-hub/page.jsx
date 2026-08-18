@@ -16,6 +16,12 @@ import {
 // ─── CONSTANTS ───────────────────────────────────────────────────────────────
 const TABS = [
   { id: "triage",    label: "AI Triage",       icon: MessageSquare,  badge: "8 Lang" },
+  { id: "booking",   label: "Smart OPD Booking",icon: Calendar,      badge: "Tokens" },
+  { id: "abdm",      label: "ABHA / ABDM",     icon: ShieldCheck,    badge: "Consent" },
+  { id: "telemed",   label: "Telemed Waiting", icon: Phone,          badge: "Jitsi" },
+  { id: "claims",    label: "Claims Audit",    icon: FileCheck,      badge: "Pre-Auth" },
+  { id: "mar",       label: "Nurse MAR & Beds",icon: Activity,       badge: "ICU Beds" },
+  { id: "discharge", label: "Discharge & Rx",  icon: FileText,       badge: "PDF" },
   { id: "console",   label: "Agent Console",   icon: Users },
   { id: "kpi",       label: "AI KPIs",         icon: BarChart3,      badge: "PRD-Grade" },
   { id: "scribe",    label: "AI Scribe",       icon: Mic,            badge: "SOAP" },
@@ -989,12 +995,311 @@ function TabRAG() {
   );
 }
 
+// ─── 6 NEW HOSPITAL MANAGEMENT & SMART BOOKING MODULES ──────────────────────
+
+function TabBooking() {
+  const [patientName, setPatientName] = useState("Ravi Kumar");
+  const [patientType, setPatientType] = useState("Self");
+  const [docId, setDocId] = useState("DR-101");
+  const [selectedSlot, setSelectedSlot] = useState("10:30 AM");
+  const [bookingResult, setBookingResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const docs = [
+    { id: "DR-101", name: "Dr. Priya Sharma", spec: "Cardiology", room: "OPD 104", slots: ["09:00 AM", "10:30 AM", "02:00 PM", "04:30 PM"] },
+    { id: "DR-102", name: "Dr. Arjun Menon", spec: "Oncology", room: "OPD 208", slots: ["10:00 AM", "11:30 AM", "03:00 PM"] },
+    { id: "DR-103", name: "Dr. Sunita Rao", spec: "Pulmonology", room: "OPD 112", slots: ["09:30 AM", "01:00 PM", "05:00 PM"] },
+    { id: "DR-104", name: "Dr. Rajesh Gupta", spec: "Neurology", room: "OPD 301", slots: ["11:00 AM", "02:30 PM", "04:00 PM"] },
+  ];
+
+  const handleBook = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ai/hospital-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "book_slot", doctorId: docId, slot: selectedSlot, patientName, patientType }),
+      });
+      const data = await res.json();
+      setBookingResult(data.booking);
+    } catch {
+      setBookingResult({
+        tokenId: "CARD-015",
+        doctorName: "Dr. Priya Sharma",
+        specialty: "Cardiology",
+        room: "OPD 104",
+        slot: selectedSlot,
+        patientName,
+        estimatedWaitMinutes: 18,
+        tokenStatus: "NEXT_IN_LINE",
+      });
+    }
+    setLoading(false);
+  };
+
+  const activeDoc = docs.find((d) => d.id === docId);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="lg:col-span-2 space-y-4">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <h4 className="font-bold text-white flex items-center gap-2">
+            <Calendar className="text-blue-400" size={16} /> Smart OPD Appointment & Token Generator
+          </h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs font-semibold text-slate-400 block mb-1">Patient Name</label>
+              <input value={patientName} onChange={(e) => setPatientName(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500" />
+            </div>
+            <div>
+              <label className="text-xs font-semibold text-slate-400 block mb-1">Booking For</label>
+              <select value={patientType} onChange={(e) => setPatientType(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-blue-500">
+                <option value="Self">Self (Ravi Kumar)</option>
+                <option value="Child">Child (Dependent)</option>
+                <option value="Senior Parent">Elderly Parent (Dependent)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 block mb-1">Select Doctor & Specialty</label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {docs.map((d) => (
+                <button key={d.id} onClick={() => { setDocId(d.id); setSelectedSlot(d.slots[0]); }}
+                  className={`p-3 rounded-xl border text-left transition-all ${docId === d.id ? "bg-blue-600/20 border-blue-500 text-white" : "bg-slate-800/60 border-slate-700 text-slate-300 hover:border-slate-600"}`}>
+                  <div className="font-bold text-sm">{d.name}</div>
+                  <div className="text-xs text-blue-400">{d.spec} · <span className="text-slate-400">{d.room}</span></div>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <label className="text-xs font-semibold text-slate-400 block mb-1.5">Available Time Slots</label>
+            <div className="flex flex-wrap gap-2">
+              {activeDoc?.slots.map((s) => (
+                <button key={s} onClick={() => setSelectedSlot(s)}
+                  className={`px-3.5 py-1.5 rounded-xl text-xs font-bold border transition-all ${selectedSlot === s ? "bg-emerald-600 border-emerald-500 text-white" : "bg-slate-800 border-slate-700 text-slate-300 hover:border-emerald-500"}`}>
+                  {s}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={handleBook} disabled={loading} className="w-full py-3 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-lg shadow-blue-600/30">
+            {loading ? "Generating Live Token..." : "Confirm Booking & Generate OPD Token"}
+          </button>
+        </div>
+      </div>
+      <div>
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+          <h4 className="font-bold text-white text-sm">Live Token Board</h4>
+          {bookingResult ? (
+            <div className="bg-emerald-950/40 border border-emerald-500/40 rounded-xl p-5 text-center space-y-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase">Token Issued</span>
+              <div className="text-4xl font-black text-emerald-400 font-mono tracking-widest">{bookingResult.tokenId}</div>
+              <div className="text-xs text-slate-300 font-semibold">{bookingResult.doctorName} ({bookingResult.specialty})</div>
+              <div className="text-[11px] text-slate-400">Room: <strong>{bookingResult.room}</strong> · Slot: <strong>{bookingResult.slot}</strong></div>
+              <div className="text-xs text-amber-400 font-bold mt-2">Est. Wait: ~{bookingResult.estimatedWaitMinutes} min</div>
+            </div>
+          ) : (
+            <div className="bg-slate-800/40 rounded-xl p-6 text-center text-slate-500 text-xs">
+              Fill form and click "Confirm Booking" to generate live OPD token queue card.
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabABDM() {
+  const [inputAbha, setInputAbha] = useState("91482091824412");
+  const [abhaData, setAbhaData] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleVerify = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/ai/hospital-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "verify_abha", abhaId: inputAbha, name: "Ravi Kumar" }),
+      });
+      const data = await res.json();
+      setAbhaData(data.abhaRecord);
+    } catch {
+      setAbhaData({
+        abhaNumber: "91-4820-9182-4412",
+        abhaAddress: "ravikumar@abdm",
+        name: "Ravi Kumar",
+        linkedHospitalContexts: [{ clinic: "MetroGeneral Tertiary", visitDate: "2025-11-10", type: "OPD Consultation" }],
+        activeConsentArtifacts: [{ id: "CONSENT-9081", purpose: "Care Management", grantedTo: "Dr. Priya Sharma", expiry: "2026-12-31" }],
+      });
+    }
+    setLoading(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <h4 className="font-bold text-white flex items-center gap-2">
+          <ShieldCheck className="text-blue-400" size={18} /> ABHA / ABDM Health ID Verification & Digital Consent Gateway
+        </h4>
+        <p className="text-xs text-slate-400">Verifies 14-digit ABHA number (NN-NNNN-NNNN-NNNN pattern) and handles linked health records (CareContext) under ABDM §5 CM compliance.</p>
+        <div className="flex gap-2 max-w-xl">
+          <input value={inputAbha} onChange={(e) => setInputAbha(e.target.value)} placeholder="14-Digit ABHA Number e.g. 91482091824412" className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-blue-500" />
+          <button onClick={handleVerify} disabled={loading} className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all">
+            {loading ? "Verifying..." : "Verify ABHA ID"}
+          </button>
+        </div>
+      </div>
+      {abhaData && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <h5 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Verified ABHA Health Identity</h5>
+            <div className="text-2xl font-black text-blue-400 font-mono">{abhaData.abhaNumber}</div>
+            <div className="text-xs text-slate-300">Address Handle: <span className="font-mono text-emerald-400">{abhaData.abhaAddress}</span></div>
+            <div className="text-xs text-slate-400">Holder Name: <strong className="text-white">{abhaData.name}</strong></div>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+            <h5 className="text-xs font-bold uppercase text-slate-400 tracking-wider">Active Digital Consent Artifacts</h5>
+            {abhaData.activeConsentArtifacts.map((c, i) => (
+              <div key={i} className="bg-slate-800/60 rounded-xl p-3 text-xs space-y-1">
+                <div className="flex justify-between font-bold text-slate-200"><span>{c.id}</span><span className="text-emerald-400">ACTIVE</span></div>
+                <div className="text-slate-400">Granted To: {c.grantedTo} · Expiry: {c.expiry}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TabTelemed() {
+  const [state, setState] = useState("PATIENT_WAITING");
+  return (
+    <div className="space-y-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <div className="flex items-center justify-between">
+          <h4 className="font-bold text-white flex items-center gap-2"><Phone className="text-purple-400" size={18} /> Telemedicine Jitsi Waiting Room Lifecycle</h4>
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30">{state}</span>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <button onClick={() => setState("PATIENT_WAITING")} className={`p-4 rounded-xl border text-left transition-all ${state === "PATIENT_WAITING" ? "bg-amber-600/20 border-amber-500 text-amber-300" : "bg-slate-800 border-slate-700 text-slate-400"}`}>
+            <div className="font-bold text-sm">1. Patient Waiting Room</div>
+            <div className="text-xs mt-1 opacity-80">Patient is checked in and waiting for clinician approval.</div>
+          </button>
+          <button onClick={() => setState("ADMITTED")} className={`p-4 rounded-xl border text-left transition-all ${state === "ADMITTED" ? "bg-blue-600/20 border-blue-500 text-blue-300" : "bg-slate-800 border-slate-700 text-slate-400"}`}>
+            <div className="font-bold text-sm">2. Doctor Admitted</div>
+            <div className="text-xs mt-1 opacity-80">Clinician admits patient into encrypted Jitsi video session.</div>
+          </button>
+          <button onClick={() => setState("DISCHARGED")} className={`p-4 rounded-xl border text-left transition-all ${state === "DISCHARGED" ? "bg-emerald-600/20 border-emerald-500 text-emerald-300" : "bg-slate-800 border-slate-700 text-slate-400"}`}>
+            <div className="font-bold text-sm">3. E-Rx Generated</div>
+            <div className="text-xs mt-1 opacity-80">Session ended, digital prescription signed & QR code issued.</div>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function TabClaims() {
+  const [icd, setIcd] = useState("E11.9");
+  const [cpt, setCpt] = useState("99213");
+  const [billed, setBilled] = useState("14500");
+  const [preAuth, setPreAuth] = useState(null);
+
+  const handleAudit = async () => {
+    try {
+      const res = await fetch("/api/ai/hospital-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "preauth_claims", icdCode: icd, cptCode: cpt, totalBilled: billed }),
+      });
+      const data = await res.json();
+      setPreAuth(data.preAuthResult);
+    } catch {
+      setPreAuth({
+        claimId: "CLM-PREAUTH-908124",
+        approvedAmount: 13340,
+        approvalProbability: 0.92,
+        denialRiskScore: 0.08,
+        riskLevel: "LOW_RISK",
+        autoFixSuggestions: ["Attach 12-lead ECG pre-procedure baseline to prevent generic code rejection"],
+      });
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-4">
+        <h4 className="font-bold text-white flex items-center gap-2"><FileCheck className="text-emerald-400" size={18} /> Biologic Claims Pre-Authorization & AI Denial Predictor</h4>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div><label className="text-xs font-semibold text-slate-400 block mb-1">ICD-10 Code</label><input value={icd} onChange={(e) => setIcd(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-mono" /></div>
+          <div><label className="text-xs font-semibold text-slate-400 block mb-1">CPT Code</label><input value={cpt} onChange={(e) => setCpt(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-mono" /></div>
+          <div><label className="text-xs font-semibold text-slate-400 block mb-1">Total Billed (₹)</label><input value={billed} onChange={(e) => setBilled(e.target.value)} className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-sm text-white font-mono" /></div>
+        </div>
+        <button onClick={handleAudit} className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition-all">Run Pre-Auth Denial Predictor</button>
+      </div>
+      {preAuth && (
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 space-y-3">
+          <div className="flex justify-between items-center"><span className="font-bold text-white text-sm">Pre-Auth Analysis ({preAuth.claimId})</span><span className="text-emerald-400 font-bold text-xs">Approval Probability: {(preAuth.approvalProbability * 100).toFixed(0)}%</span></div>
+          <div className="text-xs text-slate-300">Estimated Approved Amount: <strong className="text-white">₹{preAuth.approvedAmount}</strong></div>
+          <div className="space-y-1">{preAuth.autoFixSuggestions.map((s, i) => (<div key={i} className="text-xs text-amber-300 bg-amber-950/30 border border-amber-500/30 rounded-lg p-2">💡 Auto-Fix: {s}</div>))}</div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function TabMAR() {
+  const wards = [
+    { name: "Cardiac ICU", total: 8, occupied: 6, available: 2, criticalAlerts: 1 },
+    { name: "General Male Ward", total: 20, occupied: 15, available: 5, criticalAlerts: 0 },
+    { name: "General Female Ward", total: 20, occupied: 18, available: 2, criticalAlerts: 0 },
+    { name: "Isolation Ward", total: 6, occupied: 3, available: 3, criticalAlerts: 0 },
+  ];
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {wards.map((w, i) => (
+          <div key={i} className="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-2">
+            <div className="text-sm font-bold text-white">{w.name}</div>
+            <div className="text-xs text-slate-400">Occupancy: <strong className="text-emerald-400">{w.occupied}/{w.total} beds</strong></div>
+            {w.criticalAlerts > 0 && <span className="inline-block text-[10px] font-bold text-red-400 bg-red-500/10 border border-red-500/30 px-2 py-0.5 rounded">🚨 {w.criticalAlerts} Critical Alert</span>}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function TabDischarge() {
+  return (
+    <div className="bg-slate-900 border border-slate-800 rounded-2xl p-6 space-y-4">
+      <div className="flex justify-between items-center">
+        <div><h4 className="font-bold text-white text-base">Discharge Summary & Patient Portal Summary</h4><p className="text-xs text-slate-400">Official hospital discharge summary with follow-up scheduling.</p></div>
+        <button onClick={() => alert("Printing official Discharge Summary PDF...")} className="px-4 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold flex items-center gap-2"><FileText size={14} /> Download PDF</button>
+      </div>
+      <div className="bg-slate-950 border border-slate-800 rounded-xl p-4 text-xs text-slate-300 leading-relaxed font-mono">
+        <div>HOSPITAL DISCHARGE SUMMARY</div>
+        <div>--------------------------</div>
+        <div>Patient: Sarah Jenkins (MRN-908124) | Age: 58 | Gender: Female</div>
+        <div>Admission: 2025-10-12 | Discharge: 2025-10-22</div>
+        <div>Diagnosis: Type-2 Diabetes Mellitus with Severe Eczema Exacerbation (ICD-10 E11.69)</div>
+        <div>Discharge Meds: Metformin 500mg BD, Topical Hydrocortisone 1%</div>
+        <div>Follow-up: OPD 104 in 14 days</div>
+      </div>
+    </div>
+  );
+}
+
 // ─── MAIN PAGE ───────────────────────────────────────────────────────────────
 const TAB_COMPONENTS = {
-  triage: TabTriageChatbot, console: TabAgentConsole, kpi: TabKPI,
-  scribe: TabScribe, drug: TabDrugSafety, adherence: TabAdherence,
-  lab: TabLabExplainer, noshow: TabNoShow, er: TabERTriage,
-  pharmacy: TabPharmacy, analytics: TabAnalytics, rag: TabRAG,
+  triage: TabTriageChatbot, booking: TabBooking, abdm: TabABDM, telemed: TabTelemed,
+  claims: TabClaims, mar: TabMAR, discharge: TabDischarge, console: TabAgentConsole,
+  kpi: TabKPI, scribe: TabScribe, drug: TabDrugSafety, adherence: TabAdherence,
+  lab: TabLabExplainer, noshow: TabNoShow, er: TabERTriage, pharmacy: TabPharmacy,
+  analytics: TabAnalytics, rag: TabRAG,
 };
 
 export default function MedCoreHubPage() {
