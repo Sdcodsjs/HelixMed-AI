@@ -1313,7 +1313,6 @@ export default function MedCoreHubPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-800 pb-5">
           <div>
             <div className="flex items-center gap-2 mb-1">
-              <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">Sarvam-105b Architecture</span>
               <span className="text-xs text-slate-400">DPDP Act Compliant · India Region · In-Memory Mode</span>
             </div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
